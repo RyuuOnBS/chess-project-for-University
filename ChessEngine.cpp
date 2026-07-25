@@ -33,7 +33,7 @@ class board
     
     piece* getPieceLoc(int row,int col);
 
-    bool is_Friendly(float row, float col, bool is_white);
+    bool is_not_Friendly(float row, float col, bool is_white);
 };
 class piece
 {
@@ -73,7 +73,7 @@ piece* board::getPieceLoc(int row,int col)
     return nullptr;
 }
 
-bool board::is_Friendly(float row, float col, bool is_white)
+bool board::is_not_Friendly(float row, float col, bool is_white)
     {
         piece* piss = getPieceLoc(row,col);
         
@@ -99,11 +99,11 @@ class pawn : public piece
             int newrow = row;
             int newcol = column + direction;
             int newCOL = column + 2* direction;
-            if(!b.is_Friendly(newrow, newcol, is_White))
+            if(!b.is_not_Friendly(newrow, newcol, is_White))
                 possible_moves.push_back(b.get_Position(newrow, newcol));
 
             if(is_First_Move)
-                if(!b.is_Friendly(row,column + 2 * direction, is_White))
+                if(!b.is_not_Friendly(row,column + 2 * direction, is_White))
                     possible_moves.push_back(b.get_Position(newrow, newCOL));
             
             Vector2f pos = {row, column};
@@ -135,7 +135,7 @@ class rook : public piece
 
                     if(newrow <= 7 and newcol <= 7 and newrow >= 0 and newcol >= 0)
                     {
-                        if(!b.is_Friendly(newrow, newcol, is_White))
+                        if(!b.is_not_Friendly(newrow, newcol, is_White))
                         {
                             possible_moves.push_back(board::get_Position( newrow, newcol));
                         }
@@ -172,7 +172,7 @@ class knight : public piece
 
                 if(newrow <= 7 and newcol <= 7 and newrow >= 0 and newcol >= 0)
                 {
-                    if(!b.is_Friendly(newrow, newcol, is_White))
+                    if(!b.is_not_Friendly(newrow, newcol, is_White))
                     {
                         possible_moves.push_back(board::get_Position( newrow, newcol));
                     }
@@ -204,7 +204,7 @@ class bishop : public piece
 
                     if(newrow <= 7 and newcol <= 7 and newrow >= 0 and newcol >= 0)
                     {
-                        if(!b.is_Friendly(newrow, newcol, is_White))
+                        if(!b.is_not_Friendly(newrow, newcol, is_White))
                         {
                             possible_moves.push_back(board::get_Position(newrow, newcol));
                         }
@@ -244,7 +244,7 @@ class queen : public piece
 
                     if(newrow <= 7 and newcol <= 7 and newrow >= 0 and newcol >= 0)
                     {
-                        if(!b.is_Friendly(newrow, newcol, is_White))
+                        if(!b.is_not_Friendly(newrow, newcol, is_White))
                         {
                             possible_moves.push_back(board::get_Position( newrow, newcol));
                         }
@@ -282,7 +282,7 @@ class king : public piece
 
                 if(newrow <= 7 and newcol <= 7 and newrow >= 0 and newcol >= 0)
                 {
-                    if(!b.is_Friendly(newrow, newcol, is_White))
+                    if(!b.is_not_Friendly(newrow, newcol, is_White))
                     {
                         possible_moves.push_back(board::get_Position( newrow, newcol));
                     }
