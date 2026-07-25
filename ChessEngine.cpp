@@ -153,12 +153,18 @@ class rook : public piece
                     {
                         if(!b.is_not_Friendly(newrow, newcol, is_White))
                         {
-                            possible_moves.push_back(board::get_Position( newrow, newcol));
+                            possible_moves.push_back(b.get_Position( newrow, newcol));
                         }
                         else
                         {
                             break;
                         }
+                        if(b.is_not_Friendly(newrow, newcol, !is_White))
+                        {
+                            possible_moves.push_back(b.get_Position(newrow, newcol));
+                            break;
+                        }
+                        
                     }
                     else
                     {    
@@ -190,7 +196,7 @@ class knight : public piece
                 {
                     if(!b.is_not_Friendly(newrow, newcol, is_White))
                     {
-                        possible_moves.push_back(board::get_Position( newrow, newcol));
+                        possible_moves.push_back(b.get_Position( newrow, newcol));
                     }
                 }
             }
@@ -222,10 +228,15 @@ class bishop : public piece
                     {
                         if(!b.is_not_Friendly(newrow, newcol, is_White))
                         {
-                            possible_moves.push_back(board::get_Position(newrow, newcol));
+                            possible_moves.push_back(b.get_Position(newrow, newcol));
                         }
                         else
                         {
+                            break;
+                        }
+                        if(b.is_not_Friendly(newrow, newcol, !is_White))
+                        {
+                            possible_moves.push_back(b.get_Position(newrow, newcol));
                             break;
                         }
                     }
@@ -262,10 +273,15 @@ class queen : public piece
                     {
                         if(!b.is_not_Friendly(newrow, newcol, is_White))
                         {
-                            possible_moves.push_back(board::get_Position( newrow, newcol));
+                            possible_moves.push_back(b.get_Position( newrow, newcol));
                         }
                         else
                         {
+                            break;
+                        }
+                        if(b.is_not_Friendly(newrow, newcol, !is_White))
+                        {
+                            possible_moves.push_back(b.get_Position(newrow, newcol));
                             break;
                         }
                     }
@@ -300,7 +316,7 @@ class king : public piece
                 {
                     if(!b.is_not_Friendly(newrow, newcol, is_White))
                     {
-                        possible_moves.push_back(board::get_Position( newrow, newcol));
+                        possible_moves.push_back(b.get_Position( newrow, newcol));
                     }
                 }
 
