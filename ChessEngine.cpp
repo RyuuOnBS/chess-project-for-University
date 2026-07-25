@@ -99,16 +99,32 @@ class pawn : public piece
             int newrow = row;
             int newcol = column + direction;
             int newCOL = column + 2* direction;
+            int atkROW[] = {newrow - 1, newrow + 1};
             if(!b.is_not_Friendly(newrow, newcol, is_White))
-                possible_moves.push_back(b.get_Position(newrow, newcol));
+            {
+                if(newcol >= 0 or newcol <= 7)
+                    possible_moves.push_back(b.get_Position(newrow, newcol));
+            }
 
             if(is_First_Move)
                 if(!b.is_not_Friendly(row,column + 2 * direction, is_White))
                     possible_moves.push_back(b.get_Position(newrow, newCOL));
-            
+
+            for(int i = 0; i < 2; i++ )
+            {
+                if(b.is_not_Friendly(atkROW[i], newcol, !is_White))
+                {
+                    (i % 2 == 0)? atkROW[i] = newrow - 1 : newrow + 1;
+                    if(newcol >= 0 or newcol <= 7)
+                    {
+                        possible_moves.push_back(b.get_Position(atkROW[i], newcol));
+                    }
+                }
+            }
+
             Vector2f pos = {row, column};
             // Promotion
-            if(pos.x >= 7 or pos.y <= 0)
+            if(pos.x == 7.f or pos.y == 0.f)
                 can_Promote = true;
 
             return possible_moves;
