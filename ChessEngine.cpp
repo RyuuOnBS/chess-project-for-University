@@ -42,6 +42,9 @@ class board
     piece* getPieceLoc(int row,int col);
 
     bool is_not_Friendly(float row, float col, bool is_white);
+
+    void capturePiece(piece* captured);
+
 };
 class piece
 {
@@ -61,6 +64,8 @@ class piece
         }
     public:
         virtual vector <Vector2f> moves(board& BOARD) = 0;
+
+        virtual ~piece() = default;
 };
 piece* board::getPieceLoc(int row,int col)
 {
@@ -90,6 +95,16 @@ bool board::is_not_Friendly(float row, float col, bool is_white)
         
         return piss->is_White == is_white;
     }
+void board::capturePiece(piece* captured)
+{
+    vector <piece*>& pieces = captured->is_White ? whitepiece : blackpiece;
+    auto it = find(pieces.begin(), pieces.end(), captured);
+    if(it != pieces.end())
+    {
+        // delete *it;
+        pieces.erase(it);
+    } 
+}
 class pawn : public piece
 {
     private:
@@ -111,13 +126,13 @@ class pawn : public piece
             if(!b.is_not_Friendly(newrow, newcol, is_White))
             {
                 if(newcol >= 0 or newcol <= 7)
-                    possible_moves.push_back(b.get_Position(newrow, newcol));
+                possible_moves.push_back(b.get_Position(newrow, newcol));
             }
-
+            
             if(is_First_Move)
-                if(!b.is_not_Friendly(row,column + 2 * direction, is_White))
-                    possible_moves.push_back(b.get_Position(newrow, newCOL));
-
+            if(!b.is_not_Friendly(row,column + 2 * direction, is_White))
+            possible_moves.push_back(b.get_Position(newrow, newCOL));
+            
             for(int i = 0; i < 2; i++ )
             {
                 if(b.is_not_Friendly(atkROW[i], newcol, !is_White))
@@ -129,6 +144,7 @@ class pawn : public piece
                     }
                 }
             }
+            
 
             Vector2f pos = {row, column};
             // Promotion
@@ -637,6 +653,11 @@ int main()
                             if(Highlight.getGlobalBounds().contains(mousepos))
                             {
                                 Vector2f idx = b.get_Index(k.x,k.y);
+                                piece* target = b.getPieceLoc(idx.x,idx.y);
+                                if(target != nullptr and target->is_White != selectedpiece->is_White)
+                                {
+                                b.capturePiece(target);
+                                }
                                 selectedpiece->row = idx.x;
                                 selectedpiece->column = idx.y;
                                 selectedpiece->is_First_Move = false;
