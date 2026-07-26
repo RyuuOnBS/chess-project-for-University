@@ -20,6 +20,14 @@ class board
     {
         return {17.f+static_cast<float>(row)*95.f,17.f+static_cast<float>(column)*95.f};
     }
+    static Vector2f get_Position1(int row, int column)
+    {
+        return {23.f+static_cast<float>(row)*95.f,22.f+static_cast<float>(column)*95.f};
+    }
+        static Vector2f get_Position2(int row, int column)
+    {
+        return {26.f+static_cast<float>(row)*95.f,27.f+static_cast<float>(column)*95.f};
+    }
     static Vector2f get_Index(float row, float column)
     {
         return { (row - 17.f)/95.f, (column - 17.f)/95.f };
@@ -318,6 +326,10 @@ class king : public piece
                     {
                         possible_moves.push_back(b.get_Position( newrow, newcol));
                     }
+                    if(b.is_not_Friendly(newrow, newcol, !is_White))
+                    {
+                        possible_moves.push_back(b.get_Position(newrow,newcol));
+                    }
                 }
 
             }
@@ -583,6 +595,9 @@ int main()
     text.setCharacterSize(20);
 // creates a square shape for chess board
     RectangleShape Square({95,95});
+    RectangleShape ReflSquare1({83, 23});
+    RectangleShape ReflSquare2({78,5});
+    RectangleShape ReflSquare3({5,83});
 
 // creates a rectangle for the inner frame of the chess board
     RectangleShape Inner_Frame({774 , 776});
@@ -683,9 +698,19 @@ position so to design a basic fram around the chess board */
         {
             for (int j = 0; j < 8; j++)
             {
-                Square.setPosition(board::get_Position(i, j));
+                Square.setPosition(b.get_Position(i, j));
+                ReflSquare1.setPosition(b.get_Position1(i,j));
+                ReflSquare2.setPosition(b.get_Position2(i,j));
+                ReflSquare3.setPosition(b.get_Position1(i,j));
+
                 Square.setFillColor(((i + j) % 2 == 0) ? Color(223, 215, 200) : Color(168, 66, 45));
+                ReflSquare1.setFillColor(((i + j) % 2 == 0) ? Color(230,224,212) : Color(179,71,50));
+                ReflSquare2.setFillColor(((i + j) % 2 == 0) ? Color(233,227,216) : Color(181,79,58));
+                ReflSquare3.setFillColor(((i + j) % 2 == 0) ? Color(230,224,212) : Color(179,71,50));
                 window.draw(Square);
+                window.draw(ReflSquare1);
+                window.draw(ReflSquare3);
+                window.draw(ReflSquare2);
             }
         }
 
