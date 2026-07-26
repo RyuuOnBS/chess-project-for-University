@@ -101,7 +101,7 @@ void board::capturePiece(piece* captured)
     auto it = find(pieces.begin(), pieces.end(), captured);
     if(it != pieces.end())
     {
-        // delete *it;
+        delete *it;
         pieces.erase(it);
     } 
 }
