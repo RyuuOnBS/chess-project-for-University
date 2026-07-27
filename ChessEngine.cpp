@@ -41,7 +41,7 @@ class board
     
     piece* getPieceLoc(int row,int col);
 
-    bool is_not_Friendly(float row, float col, bool is_white);
+    bool is_Friendly(float row, float col, bool is_white);
 
     void capturePiece(piece* captured);
 
@@ -86,22 +86,21 @@ piece* board::getPieceLoc(int row,int col)
     return nullptr;
 }
 
-bool board::is_not_Friendly(float row, float col, bool is_white)
-    {
-        piece* piss = getPieceLoc(row,col);
-        
-        if(piss == nullptr)
+bool board::is_Friendly(float row, float col, bool is_white)
+{
+    piece* piss = getPieceLoc(row,col);
+    
+    if(piss == nullptr)
         return false;
-        
-        return piss->is_White == is_white;
-    }
+    
+    return piss->is_White == is_white;
+}
 void board::capturePiece(piece* captured)
 {
     vector <piece*>& pieces = captured->is_White ? whitepiece : blackpiece;
     auto it = find(pieces.begin(), pieces.end(), captured);
     if(it != pieces.end())
     {
-        delete *it;
         pieces.erase(it);
     } 
 }
@@ -123,19 +122,27 @@ class pawn : public piece
             int newcol = column + direction;
             int newCOL = column + 2* direction;
             int atkROW[] = {newrow - 1, newrow + 1};
-            if(!b.is_not_Friendly(newrow, newcol, is_White))
+            piece* front = b.getPieceLoc(newrow,newcol);
+            piece* front1 = b.getPieceLoc(newrow,newcol);
+
+            if(front == nullptr)
             {
                 if(newcol >= 0 or newcol <= 7)
                 possible_moves.push_back(b.get_Position(newrow, newcol));
             }
             
             if(is_First_Move)
-            if(!b.is_not_Friendly(row,column + 2 * direction, is_White))
-            possible_moves.push_back(b.get_Position(newrow, newCOL));
+            {
+                if(front1 == nullptr)
+                {
+                possible_moves.push_back(b.get_Position(newrow, newCOL));
+                }
+
+            }
             
             for(int i = 0; i < 2; i++ )
             {
-                if(b.is_not_Friendly(atkROW[i], newcol, !is_White))
+                if(b.is_Friendly(atkROW[i], newcol, !is_White))
                 {
                     (i % 2 == 0)? atkROW[i] = newrow - 1 : newrow + 1;
                     if(newcol >= 0 or newcol <= 7)
@@ -175,7 +182,7 @@ class rook : public piece
 
                     if(newrow <= 7 and newcol <= 7 and newrow >= 0 and newcol >= 0)
                     {
-                        if(!b.is_not_Friendly(newrow, newcol, is_White))
+                        if(!b.is_Friendly(newrow, newcol, is_White))
                         {
                             possible_moves.push_back(b.get_Position( newrow, newcol));
                         }
@@ -183,7 +190,7 @@ class rook : public piece
                         {
                             break;
                         }
-                        if(b.is_not_Friendly(newrow, newcol, !is_White))
+                        if(b.is_Friendly(newrow, newcol, !is_White))
                         {
                             possible_moves.push_back(b.get_Position(newrow, newcol));
                             break;
@@ -218,7 +225,7 @@ class knight : public piece
 
                 if(newrow <= 7 and newcol <= 7 and newrow >= 0 and newcol >= 0)
                 {
-                    if(!b.is_not_Friendly(newrow, newcol, is_White))
+                    if(!b.is_Friendly(newrow, newcol, is_White))
                     {
                         possible_moves.push_back(b.get_Position( newrow, newcol));
                     }
@@ -250,7 +257,7 @@ class bishop : public piece
 
                     if(newrow <= 7 and newcol <= 7 and newrow >= 0 and newcol >= 0)
                     {
-                        if(!b.is_not_Friendly(newrow, newcol, is_White))
+                        if(!b.is_Friendly(newrow, newcol, is_White))
                         {
                             possible_moves.push_back(b.get_Position(newrow, newcol));
                         }
@@ -258,7 +265,7 @@ class bishop : public piece
                         {
                             break;
                         }
-                        if(b.is_not_Friendly(newrow, newcol, !is_White))
+                        if(b.is_Friendly(newrow, newcol, !is_White))
                         {
                             possible_moves.push_back(b.get_Position(newrow, newcol));
                             break;
@@ -295,7 +302,7 @@ class queen : public piece
 
                     if(newrow <= 7 and newcol <= 7 and newrow >= 0 and newcol >= 0)
                     {
-                        if(!b.is_not_Friendly(newrow, newcol, is_White))
+                        if(!b.is_Friendly(newrow, newcol, is_White))
                         {
                             possible_moves.push_back(b.get_Position( newrow, newcol));
                         }
@@ -303,7 +310,7 @@ class queen : public piece
                         {
                             break;
                         }
-                        if(b.is_not_Friendly(newrow, newcol, !is_White))
+                        if(b.is_Friendly(newrow, newcol, !is_White))
                         {
                             possible_moves.push_back(b.get_Position(newrow, newcol));
                             break;
@@ -338,11 +345,11 @@ class king : public piece
 
                 if(newrow <= 7 and newcol <= 7 and newrow >= 0 and newcol >= 0)
                 {
-                    if(!b.is_not_Friendly(newrow, newcol, is_White))
+                    if(!b.is_Friendly(newrow, newcol, is_White))
                     {
                         possible_moves.push_back(b.get_Position( newrow, newcol));
                     }
-                    if(b.is_not_Friendly(newrow, newcol, !is_White))
+                    if(b.is_Friendly(newrow, newcol, !is_White))
                     {
                         possible_moves.push_back(b.get_Position(newrow,newcol));
                     }
@@ -657,6 +664,7 @@ int main()
                                 if(target != nullptr and target->is_White != selectedpiece->is_White)
                                 {
                                 b.capturePiece(target);
+                                target->is_Alive = false;
                                 }
                                 selectedpiece->row = idx.x;
                                 selectedpiece->column = idx.y;
