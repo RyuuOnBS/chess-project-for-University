@@ -1,364 +1,18 @@
 #include<Sfml/Graphics.hpp>
 #include<optional>
+#include"board.hpp"
+#include"piece.hpp"
+#include"pawn.hpp"
+#include"knight.hpp"
+#include"rook.hpp"
+#include"bishop.hpp"
+#include"queen.hpp"
+#include"king.hpp"
 
 using namespace std;
 // Includes all functions of sfml library
 using namespace sf; 
 
-
-// 1 means the value of the index is positive and the piece moves in positive direction of the same axis
-// -1 means the value of the index becomes negative and the piece moves in negative direction of the same axis
-// 0 indicates no change in the value
-class piece;
-class board
-{
-    public:
-    vector <piece*> blackpiece;
-    vector <piece*> whitepiece;
-
-    static Vector2f get_Position(int row, int column)
-    {
-        return {17.f+static_cast<float>(row)*95.f,17.f+static_cast<float>(column)*95.f};
-    }
-    static Vector2f get_Position1(int row, int column)
-    {
-        return {23.f+static_cast<float>(row)*95.f,22.f+static_cast<float>(column)*95.f};
-    }
-        static Vector2f get_Position2(int row, int column)
-    {
-        return {26.f+static_cast<float>(row)*95.f,27.f+static_cast<float>(column)*95.f};
-    }
-    static Vector2f get_Index(float row, float column)
-    {
-        return { (row - 17.f)/95.f, (column - 17.f)/95.f };
-    }
-    static Vector2f set_text_position(int row){
-        return {static_cast<float>(20+(row*95)),static_cast<float>(8*94)};
-    }
-    static Vector2f set_num_position(int column){
-        return {static_cast<float>(20),static_cast<float>(18+((7-column)*95))};
-    }
-    
-    piece* getPieceLoc(int row,int col);
-
-    bool is_Friendly(float row, float col, bool is_white);
-
-    void capturePiece(piece* captured);
-
-};
-class piece
-{
-    public:
-        Sprite sprite;
-        int pos_x, pos_y;
-        float row,column;
-        bool is_First_Move = true;
-        bool is_White;
-        bool can_capture = false;
-        bool is_Alive = true;
-        bool is_Selected  = false;
-        vector <Vector2f> possible_moves;
-
-        piece(const Texture &texture, bool is_White) : sprite(texture), is_White(is_White)
-        {
-        }
-    public:
-        virtual vector <Vector2f> moves(board& BOARD) = 0;
-
-        virtual ~piece() = default;
-};
-piece* board::getPieceLoc(int row,int col)
-{
-    for(piece* p : whitepiece)
-    {
-        if(p != nullptr and p->row == row and p->column == col and p->is_Alive)
-        {
-            return p;
-        }
-    }
-    for(piece* p : blackpiece)
-    {
-        if(p != nullptr and p->row == row and p->column == col and p->is_Alive)
-        {
-            return p;
-        }
-    }
-    return nullptr;
-}
-
-bool board::is_Friendly(float row, float col, bool is_white)
-{
-    piece* piss = getPieceLoc(row,col);
-    
-    if(piss == nullptr)
-        return false;
-    
-    return piss->is_White == is_white;
-}
-void board::capturePiece(piece* captured)
-{
-    vector <piece*>& pieces = captured->is_White ? whitepiece : blackpiece;
-    auto it = find(pieces.begin(), pieces.end(), captured);
-    if(it != pieces.end())
-    {
-        pieces.erase(it);
-    } 
-}
-class pawn : public piece
-{
-    private:
-        bool can_Promote;
-        bool is_En_Passant;
-
-    public:
-        pawn(const Texture &texture,bool is_White): piece(texture, is_White)
-        {
-        }
-        vector <Vector2f> moves(board& b) override
-        {
-            possible_moves.clear();
-            int direction = is_White? -1 : 1;
-            int newrow = row;
-            int newcol = column + direction;
-            int newCOL = column + 2* direction;
-            int atkROW[] = {newrow - 1, newrow + 1};
-            piece* front = b.getPieceLoc(newrow,newcol);
-            piece* front1 = b.getPieceLoc(newrow,newcol);
-
-            if(front == nullptr)
-            {
-                if(newcol >= 0 or newcol <= 7)
-                possible_moves.push_back(b.get_Position(newrow, newcol));
-            }
-            
-            if(is_First_Move)
-            {
-                if(front1 == nullptr)
-                {
-                possible_moves.push_back(b.get_Position(newrow, newCOL));
-                }
-
-            }
-            
-            for(int i = 0; i < 2; i++ )
-            {
-                if(b.is_Friendly(atkROW[i], newcol, !is_White))
-                {
-                    (i % 2 == 0)? atkROW[i] = newrow - 1 : newrow + 1;
-                    if(newcol >= 0 or newcol <= 7)
-                    {
-                        possible_moves.push_back(b.get_Position(atkROW[i], newcol));
-                    }
-                }
-            }
-            
-
-            Vector2f pos = {row, column};
-            // Promotion
-            if(pos.x == 7.f or pos.y == 0.f)
-                can_Promote = true;
-
-            return possible_moves;
-        }
-};
-class rook : public piece
-{
-    public:
-        rook(const Texture &texture, bool is_White): piece(texture, is_White)
-        {
-        }    
-    public:
-        int dirx[4] = {1, 0, -1, 0};
-        int diry[4] = {0, 1, 0, -1};
-        vector <Vector2f> moves(board& b) override
-        {
-            possible_moves.clear();
-            for(int d = 0; d < 4; d++)
-            {
-                for(int i = 1; i <= 8; i++)
-                {
-                    int newrow = row + (dirx[d]*i);
-                    int newcol = column + (diry[d]*i);
-
-                    if(newrow <= 7 and newcol <= 7 and newrow >= 0 and newcol >= 0)
-                    {
-                        if(!b.is_Friendly(newrow, newcol, is_White))
-                        {
-                            possible_moves.push_back(b.get_Position( newrow, newcol));
-                        }
-                        else
-                        {
-                            break;
-                        }
-                        if(b.is_Friendly(newrow, newcol, !is_White))
-                        {
-                            possible_moves.push_back(b.get_Position(newrow, newcol));
-                            break;
-                        }
-                        
-                    }
-                    else
-                    {    
-                        break;
-                    }
-                }
-            }
-            return possible_moves;
-        }
-};
-class knight : public piece
-{
-    public:
-        knight(const Texture &texture, bool is_White): piece(texture, is_White)
-        {
-        }
-    public:
-        int dirx[8] = {2, 2, -2, -2, -1, -1, 1, 1};
-        int diry[8] = {1, -1, 1, -1, 2, -2, 2, -2};
-        vector <Vector2f> moves(board& b) override
-        {
-            possible_moves.clear();
-            for(int i = 0; i < 8; i++)
-            {
-                int newrow = row + dirx[i];
-                int newcol = column + diry[i];
-
-                if(newrow <= 7 and newcol <= 7 and newrow >= 0 and newcol >= 0)
-                {
-                    if(!b.is_Friendly(newrow, newcol, is_White))
-                    {
-                        possible_moves.push_back(b.get_Position( newrow, newcol));
-                    }
-                }
-            }
-        return possible_moves;
-        }
-    
-};
-class bishop : public piece
-{
-    public:
-        bishop(const Texture &texture, bool is_White): piece(texture, is_White)
-        {
-        }
-    public:
-        int dirx[4] = {1, 1, -1, -1};
-        int diry[4] = {1, -1, 1, -1};
-
-        vector <Vector2f> moves(board& b) override
-        {
-            possible_moves.clear();
-            for(int d = 0; d < 4; d++)
-            {
-                for(int i = 1; i <= 8; i++)
-                {
-                    int newrow = row + (dirx[d]*i);
-                    int newcol = column + (diry[d]*i);
-
-                    if(newrow <= 7 and newcol <= 7 and newrow >= 0 and newcol >= 0)
-                    {
-                        if(!b.is_Friendly(newrow, newcol, is_White))
-                        {
-                            possible_moves.push_back(b.get_Position(newrow, newcol));
-                        }
-                        else
-                        {
-                            break;
-                        }
-                        if(b.is_Friendly(newrow, newcol, !is_White))
-                        {
-                            possible_moves.push_back(b.get_Position(newrow, newcol));
-                            break;
-                        }
-                    }
-                    else
-                    {    
-                        break;
-                    }
-                }
-            }
-            return possible_moves;
-        }
-};
-class queen : public piece
-{
-   public:
-       queen(const Texture &texture, bool is_White): piece(texture, is_White)
-        {
-        }
-    public:
-        int dirx[8] = {1, 1, -1, -1, 1, 0, -1, 0};
-        int diry[8] = {1, -1, 1, -1, 0, 1, 0, -1};
-        
-        vector <Vector2f> moves(board& b) override
-        {
-            possible_moves.clear();
-            for(int d = 0; d < 8; d++)
-            {
-                for(int i = 1; i <= 8; i++)
-                {
-                    int newrow = row + (dirx[d]*i);
-                    int newcol = column + (diry[d]*i);
-
-                    if(newrow <= 7 and newcol <= 7 and newrow >= 0 and newcol >= 0)
-                    {
-                        if(!b.is_Friendly(newrow, newcol, is_White))
-                        {
-                            possible_moves.push_back(b.get_Position( newrow, newcol));
-                        }
-                        else
-                        {
-                            break;
-                        }
-                        if(b.is_Friendly(newrow, newcol, !is_White))
-                        {
-                            possible_moves.push_back(b.get_Position(newrow, newcol));
-                            break;
-                        }
-                    }
-                    else
-                    {    
-                        break;
-                    }
-                }
-            }
-            return possible_moves;
-        }
-};
-class king : public piece
-{
-    public:
-        king(const Texture &texture, bool is_White): piece(texture, is_White)
-        {
-        }
-    public:
-        int dirx[8] = {1, 1, -1, -1, 0, 0, 1, -1};
-        int diry[8] = {1, -1, 1, -1, 1, -1, 0, 0};
-
-        vector <Vector2f> moves(board& b) override
-        {
-            possible_moves.clear();
-            for(int i = 0; i < 8; i++)
-            {
-                int newrow = row + dirx[i];
-                int newcol = column + diry[i];
-
-                if(newrow <= 7 and newcol <= 7 and newrow >= 0 and newcol >= 0)
-                {
-                    if(!b.is_Friendly(newrow, newcol, is_White))
-                    {
-                        possible_moves.push_back(b.get_Position( newrow, newcol));
-                    }
-                    if(b.is_Friendly(newrow, newcol, !is_White))
-                    {
-                        possible_moves.push_back(b.get_Position(newrow,newcol));
-                    }
-                }
-
-            }
-            return possible_moves;
-        }
-};
 int main()
 {
 // render window for the chess board
@@ -539,9 +193,9 @@ int main()
     {
         blackqueen.emplace_back(blackqueentexture, false);
     }
-    blackqueen[0].row = 4;
+    blackqueen[0].row = 3;
     blackqueen[0].column = 0;
-    blackqueen[0].sprite.setPosition(board::get_Position(4, 0));
+    blackqueen[0].sprite.setPosition(board::get_Position(3, 0));
     blackqueen[0].sprite.setScale({0.1855f, 0.1855f});
 
     vector<king> blackking;
@@ -549,9 +203,9 @@ int main()
     {
         blackking.emplace_back(blackkingtexture, false);
     }
-    blackking[0].row = 3;
+    blackking[0].row = 4;
     blackking[0].column = 0;
-    blackking[0].sprite.setPosition(board::get_Position(3,0));
+    blackking[0].sprite.setPosition(board::get_Position(4,0));
     blackking[0].sprite.setScale({0.1855f, 0.1855f});
 
 // Storing white pieces in a vector array
@@ -642,6 +296,7 @@ int main()
             {
                 window.close();
             }
+            // piece movment and capture
             if(event->is<Event::MouseButtonPressed>())
             {
                 auto * mb = event->getIf<Event::MouseButtonPressed>();
@@ -649,7 +304,8 @@ int main()
                 {
                     Vector2i mousepixel = Mouse::getPosition(window);
                     Vector2f mousepos = window.mapPixelToCoords(mousepixel);
-                    vector <piece*>& active = (turn % 2 == 0)?b.whitepiece : b.blackpiece;
+                    vector <piece*>& active = (turn % 2 == 0)? b.whitepiece : b.blackpiece;
+                    vector <piece*>& not_active = (turn % 2 == 0)? b.blackpiece : b.whitepiece;
                     bool moved = false;
 
                     if(selectedpiece != nullptr)
@@ -665,6 +321,13 @@ int main()
                                 {
                                 b.capturePiece(target);
                                 target->is_Alive = false;
+                                }
+                                for(auto& p : not_active)
+                                {
+                                    if(p->is_Alive == false)
+                                    {
+                                        b.capturePiece(p);
+                                    }
                                 }
                                 selectedpiece->row = idx.x;
                                 selectedpiece->column = idx.y;
