@@ -35,8 +35,12 @@ int main()
     Texture blackqueentexture("piece_images/black_queen.png");
     Texture blackkingtexture("piece_images/black_king.png");
 
+    Texture menu_board("piece_images/menu_board.png");
+    Sprite menu(menu_board);
+
     Texture move_highlight("piece_images/Move_highlight.png");
     Sprite Highlight(move_highlight);
+
 // Importing white piece sprite
     vector<pawn> whitepawn;
     for(int i = 0; i < 8; i++)
@@ -108,9 +112,9 @@ int main()
     {
         whitequeen.emplace_back(whitequeentexture, true);
     }
-    whitequeen[0].row = 4;
+    whitequeen[0].row = 3;
     whitequeen[0].column = 7;
-    whitequeen[0].sprite.setPosition(board::get_Position(4, 7));
+    whitequeen[0].sprite.setPosition(board::get_Position(3, 7));
     whitequeen[0].sprite.setScale({0.1855f, 0.1855f});
 
     vector<king> whiteking;
@@ -118,9 +122,9 @@ int main()
     {
         whiteking.emplace_back(whitekingtexture, true);
     }
-    whiteking[0].row = 3;
+    whiteking[0].row = 4;
     whiteking[0].column = 7;
-    whiteking[0].sprite.setPosition(board::get_Position(3, 7));
+    whiteking[0].sprite.setPosition(board::get_Position(4, 7));
     whiteking[0].sprite.setScale({0.1855f, 0.1855f});
     
 // Importing black piece sprite
@@ -270,6 +274,11 @@ int main()
     }
     Text text(font, string(1,'A'));
     text.setCharacterSize(20);
+    Text whiteturn(font, "White to move");
+    Text blackturn(font, "Black to move");
+    whiteturn.setCharacterSize(40);
+    blackturn.setCharacterSize(40);
+
 // creates a square shape for chess board
     RectangleShape Square({95,95});
     RectangleShape ReflSquare1({83, 23});
@@ -461,6 +470,10 @@ position so to design a basic fram around the chess board */
                 window.draw(p->sprite);               
             }
         }
+        menu.setColor(Color(255,255,255,250));
+        menu.setScale({0.43f, 0.46f});
+        menu.setPosition({772, 0});
+        window.draw(menu);
 
 // Drawing chess indexes
 for(int j = 0; j <= 1 ; j ++)
@@ -511,6 +524,26 @@ for(int j = 0; j <= 1 ; j ++)
                 window.draw(text);
             }
         }
+    }
+    if(turn % 2 == 0)
+    {
+        Text shadow = whiteturn;
+        shadow.setFillColor(Color(0,0,0,100));
+        shadow.move({4.f,4.f});
+        window.draw(shadow);
+        whiteturn.setFillColor(Color(255,255,255));
+        whiteturn.setPosition({905, 100});
+        window.draw(whiteturn);
+    }
+    else
+    {
+        Text shadow = blackturn;
+        shadow.setFillColor(Color(0,0,0,100));
+        shadow.move({4.f,4.f});
+        window.draw(shadow);
+        blackturn.setFillColor(Color(255,255,255));
+        blackturn.setPosition({905, 100});
+        window.draw(blackturn);
     }
 }
 // function in sfml to display the rendered graphics
