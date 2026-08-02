@@ -10,6 +10,7 @@
         {
             piece* sides[2];
             is_king = true;
+            is_castling = false;
             sides[0] = b.getPieceLoc(row - 4, column);
             sides[1] = b.getPieceLoc(row + 3,column);
             piece* leftside[4] ={b.getPieceLoc(row - 1, column),b.getPieceLoc(row - 2, column),b.getPieceLoc(row - 3, column),b.getPieceLoc(row - 4, column)};
@@ -42,13 +43,11 @@
                     {
                         is_castling = true;
                         possible_moves.push_back(b.get_Position(row - 2, column));
-                        is_First_Move = false;
                     }
                     if(rightside[0] == nullptr and rightside[1] == nullptr and rightside[2] == castling_check[i])
                     {
                         is_castling = true;
                         possible_moves.push_back(b.get_Position(row + 2, column));
-                        is_First_Move = false;
                     }
                 }
             }

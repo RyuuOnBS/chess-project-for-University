@@ -343,16 +343,23 @@ int main()
                                     if(idx.x == 2)
                                     {
                                         piece* rook = b.getPieceLoc(0, selectedpiece->column);
-                                        rook->row = 3;
-                                        rook->sprite.setPosition(b.get_Position(3,selectedpiece->column));
-                                        rook->is_First_Move = false;
+
+                                        if(rook != nullptr and rook->is_First_Move)
+                                        {
+                                            rook->row = 3;
+                                            rook->sprite.setPosition(b.get_Position(3,selectedpiece->column));
+                                            rook->is_First_Move = false;
+                                        }
                                     }
                                     else if(idx.x == 6)
                                     {
                                         piece* rook = b.getPieceLoc(7, selectedpiece->column);
-                                        rook->row = 5;
-                                        rook->sprite.setPosition(b.get_Position(5,selectedpiece->column));
-                                        rook->is_First_Move = false;
+                                        if(rook != nullptr and rook->is_First_Move)
+                                        {
+                                            rook->row = 5;
+                                            rook->sprite.setPosition(b.get_Position(5,selectedpiece->column));
+                                            rook->is_First_Move = false;
+                                        }
                                     }
                                 }
                                 selectedpiece->row = idx.x;

@@ -15,12 +15,12 @@
             int atkROW[] = {newrow - 1, newrow + 1};
             piece* front = b.getPieceLoc(newrow,newcol);
             piece* front1 = b.getPieceLoc(newrow,newCOL);
-            piece* sides[2] = {b.getPieceLoc(newrow - 1, newcol), b.getPieceLoc(newrow + 1, newcol)};
+            piece* sides[2] = {b.getPieceLoc(newrow - 1, column), b.getPieceLoc(newrow + 1, column)};
             pawn* Capturable[2] = { dynamic_cast<pawn*>(sides[0]), dynamic_cast<pawn*>(sides[1])};
 
             if(front == nullptr)
             {
-                if(newcol >= 0 or newcol <= 7)
+                if(newcol >= 0 and newcol <= 7)
                     possible_moves.push_back(b.get_Position(newrow, newcol));
                 is_En_Passant = false;
             }
@@ -29,8 +29,8 @@
             {
                 if(front1 == nullptr)
                 {
-                possible_moves.push_back(b.get_Position(newrow, newCOL));
-                is_En_Passant = true;
+                    possible_moves.push_back(b.get_Position(newrow, newCOL));
+                    is_En_Passant = true;
                 }
             }
             
