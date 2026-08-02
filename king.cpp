@@ -1,26 +1,21 @@
 #include "king.hpp"
 #include "board.hpp"
+#include "rook.hpp"
 
-
-        bool is_king = true;
         king::king(const sf::Texture &texture, bool is_White): piece(texture, is_White)
         {
         }
-        
+
         std::vector <sf::Vector2f> king::moves(board& b)
         {
-            // piece* sides[2];
-            // if(is_White)
-            // {
-            //     piece* sides[2] = {b.getPieceLoc(row - 3, column), b.getPieceLoc(row + 4,column)};
-            // }
-            // else
-            // {
-            //     piece* sides[2] = {b.getPieceLoc(row - 4, column), b.getPieceLoc(row + 3,column)};            
-            // }
-            
-            // rook* castling_check[2] = {dynamic_cast<rook*>(sides[0]),dynamic_cast<rook*>(sides[1])};
-            // possible_moves.clear();
+            piece* sides[2];
+            is_king = true;
+            sides[0] = b.getPieceLoc(row - 4, column);
+            sides[1] = b.getPieceLoc(row + 3,column);
+            piece* leftside[4] ={b.getPieceLoc(row - 1, column),b.getPieceLoc(row - 2, column),b.getPieceLoc(row - 3, column),b.getPieceLoc(row - 4, column)};
+            piece* rightside[3] ={b.getPieceLoc(row + 1, column),b.getPieceLoc(row + 2, column),b.getPieceLoc(row + 3, column)};
+            rook* castling_check[2] = {dynamic_cast<rook*>(sides[0]),dynamic_cast<rook*>(sides[1])};
+            possible_moves.clear();
 
             for(int i = 0; i < 8; i++)
             {
@@ -39,13 +34,23 @@
                     }
                 }
             }
-            // for(int i = 0; i < 2 ; i++)
-            // {
-            //     int dir = ( i % 2 == 0)? 1 : -1;
-            //     if(castling_check[i] != nullptr and (column == 0 or column == 7) and is_First_Move and castling_check[i]->is_First_Move)
-            //     {
-            //         possible_moves.push_back(b.get_Position1( row + 2 * dir, column ));
-            //     }
-            // }
+            for(int i = 0; i < 2 ; i++)
+            {
+                if(castling_check[i] != nullptr and (column == 0 or column == 7) and is_First_Move and castling_check[i]->is_First_Move)
+                {
+                    if(leftside[0] == nullptr and leftside[1] == nullptr and leftside[2] == nullptr and leftside[3] == castling_check[i])
+                    {
+                        is_castling = true;
+                        possible_moves.push_back(b.get_Position(row - 2, column));
+                        is_First_Move = false;
+                    }
+                    if(rightside[0] == nullptr and rightside[1] == nullptr and rightside[2] == castling_check[i])
+                    {
+                        is_castling = true;
+                        possible_moves.push_back(b.get_Position(row + 2, column));
+                        is_First_Move = false;
+                    }
+                }
+            }
             return possible_moves;
         }

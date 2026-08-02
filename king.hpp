@@ -6,7 +6,6 @@
 class king : public piece
 {
     public:
-        bool is_king = true;
         king(const sf::Texture &texture, bool is_White);
 
     public:

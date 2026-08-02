@@ -338,6 +338,23 @@ int main()
                                         b.capturePiece(p);
                                     }
                                 }
+                                if(selectedpiece->is_king and selectedpiece->is_First_Move and selectedpiece->is_castling)
+                                {
+                                    if(idx.x == 2)
+                                    {
+                                        piece* rook = b.getPieceLoc(0, selectedpiece->column);
+                                        rook->row = 3;
+                                        rook->sprite.setPosition(b.get_Position(3,selectedpiece->column));
+                                        rook->is_First_Move = false;
+                                    }
+                                    else if(idx.x == 6)
+                                    {
+                                        piece* rook = b.getPieceLoc(7, selectedpiece->column);
+                                        rook->row = 5;
+                                        rook->sprite.setPosition(b.get_Position(5,selectedpiece->column));
+                                        rook->is_First_Move = false;
+                                    }
+                                }
                                 selectedpiece->row = idx.x;
                                 selectedpiece->column = idx.y;
                                 selectedpiece->is_First_Move = false;
@@ -415,20 +432,6 @@ position so to design a basic fram around the chess board */
             }
         }
 
-        for(const auto& i : highlightmoves)
-        {   
-            if(SELECTED)
-            {
-                Highlight.setPosition(i);
-                Sprite highlightshadow = Highlight;
-                highlightshadow.setColor(Color(0,0,0,100));
-                highlightshadow.move({2.f,2.f});
-                window.draw(highlightshadow);
-                Highlight.setColor(Color(255,255,255,200));
-                window.draw(Highlight);
-            }
-        }
-
 // To render the sprites
         for(piece* p: b.whitepiece)
         {   
@@ -470,6 +473,10 @@ position so to design a basic fram around the chess board */
                 window.draw(p->sprite);               
             }
         }
+        Sprite menushadow = menu;
+        menushadow.setColor(Color(0,0,0,100));
+        menushadow.move({4.f,4.f});
+        window.draw(menushadow);
         menu.setColor(Color(255,255,255,250));
         menu.setScale({0.43f, 0.46f});
         menu.setPosition({772, 0});
@@ -525,6 +532,21 @@ for(int j = 0; j <= 1 ; j ++)
             }
         }
     }
+
+    for(const auto& i : highlightmoves)
+    {   
+        if(SELECTED)
+        {
+            Highlight.setPosition(i);
+            Sprite highlightshadow = Highlight;
+            highlightshadow.setColor(Color(0,0,0,100));
+            highlightshadow.move({2.f,2.f});
+            window.draw(highlightshadow);
+            Highlight.setColor(Color(255,255,255,200));
+            window.draw(Highlight);
+        }
+    }
+
     if(turn % 2 == 0)
     {
         Text shadow = whiteturn;
@@ -548,6 +570,6 @@ for(int j = 0; j <= 1 ; j ++)
 }
 // function in sfml to display the rendered graphics
 window.display();
-window.clear(Color(232, 212, 190));
+window.clear(Color(144, 59, 13));
 }
 }
