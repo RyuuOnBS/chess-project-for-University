@@ -7,6 +7,7 @@
         std::vector <sf::Vector2f> pawn::moves(board& b)
         {
             possible_moves.clear();
+            is_pawn = true;
             is_En_Passant = false;
             int direction = is_White? -1 : 1;
             int newrow = row;

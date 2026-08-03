@@ -17,6 +17,7 @@ class piece
         bool is_Selected  = false;
         bool is_king = false;
         bool is_castling = false;
+        bool is_pawn = false;
         std::vector <sf::Vector2f> possible_moves;
 
         piece(const sf::Texture &texture, bool is_White);

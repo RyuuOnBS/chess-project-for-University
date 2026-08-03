@@ -20,25 +20,28 @@ int main()
     board b;
 
 // Initiazing a white side texture object
-    Texture whitepawntexture("piece_images/white_pawn.png");
-    Texture whiterooktexture("piece_images/white_rook.png");
-    Texture whiteknighttexture("piece_images/white_knight.png");
-    Texture whitebishoptexture("piece_images/white_bishop.png");
-    Texture whitequeentexture("piece_images/white_queen.png");
-    Texture whitekingtexture("piece_images/white_king.png");
+    Texture whitepawntexture("assets/white_pawn.png");
+    Texture whiterooktexture("assets/white_rook.png");
+    Texture whiteknighttexture("assets/white_knight.png");
+    Texture whitebishoptexture("assets/white_bishop.png");
+    Texture whitequeentexture("assets/white_queen.png");
+    Texture whitekingtexture("assets/white_king.png");
 
 // Initiazing a black side texture object
-    Texture blackpawntexture("piece_images/black_pawn.png");
-    Texture blackrooktexture("piece_images/black_rook.png");
-    Texture blackknighttexture("piece_images/black_knight.png");
-    Texture blackbishoptexture("piece_images/black_bishop.png");
-    Texture blackqueentexture("piece_images/black_queen.png");
-    Texture blackkingtexture("piece_images/black_king.png");
+    Texture blackpawntexture("assets/black_pawn.png");
+    Texture blackrooktexture("assets/black_rook.png");
+    Texture blackknighttexture("assets/black_knight.png");
+    Texture blackbishoptexture("assets/black_bishop.png");
+    Texture blackqueentexture("assets/black_queen.png");
+    Texture blackkingtexture("assets/black_king.png");
 
-    Texture menu_board("piece_images/menu_board.png");
+    Texture menu_board("assets/menu_board.png");
     Sprite menu(menu_board);
 
-    Texture move_highlight("piece_images/Move_highlight.png");
+    Texture background("assets/wooden_background.png");
+    Sprite background_sprite(background);
+
+    Texture move_highlight("assets/Move_highlight.png");
     Sprite Highlight(move_highlight);
 
 // Importing white piece sprite
@@ -268,7 +271,7 @@ int main()
     Font font;
 
 // File error handling
-    if(!font.openFromFile("times.ttf"))
+    if(!font.openFromFile("assets/times.ttf"))
     {
         return -1;
     }
@@ -338,6 +341,14 @@ int main()
                                         b.capturePiece(p);
                                     }
                                 }
+                                if(selectedpiece->is_pawn and ((selectedpiece->is_White and idx.y == 0) or (!selectedpiece->is_White and idx.y == 7)))
+                                {
+                                    selectedpiece->sprite.setTexture(whitequeentexture);
+                                    selectedpiece->is_pawn = false;
+                                }
+                                {
+
+                                }
                                 if(selectedpiece->is_king and selectedpiece->is_First_Move and selectedpiece->is_castling)
                                 {
                                     if(idx.x == 2)
@@ -401,6 +412,8 @@ int main()
                 }
             } 
         }
+        background_sprite.setPosition({0, 0});
+        window.draw(background_sprite);
 
 // Outermost frame of the board, no need to change the position as it is already at (0,0)
         Outer_Frame.setFillColor(Color (63, 11, 9));
@@ -480,13 +493,13 @@ position so to design a basic fram around the chess board */
                 window.draw(p->sprite);               
             }
         }
+        menu.setScale({0.43f, 0.46f});
+        menu.setPosition({772, 0});
         Sprite menushadow = menu;
         menushadow.setColor(Color(0,0,0,100));
         menushadow.move({4.f,4.f});
         window.draw(menushadow);
-        menu.setColor(Color(255,255,255,250));
-        menu.setScale({0.43f, 0.46f});
-        menu.setPosition({772, 0});
+        menu.setColor(Color(255,255,255,200));
         window.draw(menu);
 
 // Drawing chess indexes
