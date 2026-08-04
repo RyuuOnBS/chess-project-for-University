@@ -14,10 +14,10 @@ using namespace std;
 using namespace sf; 
 
 const sf::Vector2f promotionUIpos[4] = {
-    {870.f, 350.f},
-    {942.f, 350.f},
-    {1014.f, 350.f},
-    {1086.f, 350.f}
+    {880.f, 350.f},
+    {952.f, 350.f},
+    {1024.f, 350.f},
+    {1096.f, 350.f}
 };
 int main()
 {
@@ -367,6 +367,7 @@ int main()
                                 {
                                     newPiece->row = pendingPromotion->row;
                                     newPiece->column = pendingPromotion->column;
+                                    newPiece->sprite.setScale({0.1855f, 0.1855f});
                                     newPiece->sprite.setPosition(b.get_Position(static_cast<int>(newPiece->row), static_cast<int>(newPiece->column)));
                                     if(pendingPromotion->is_White)
                                     {
@@ -390,6 +391,7 @@ int main()
                                     pendingPromotion->is_Alive = false;
                                     pendingPromotion = nullptr;
                                     turn++;
+                                    moved = true;
                                     break;
                                 }
                             }
@@ -443,6 +445,20 @@ int main()
                                             rook->is_First_Move = false;
                                         }
                                     }
+                                }
+                                pawn* promotedPawn = dynamic_cast<pawn*>(selectedpiece);
+                                if(promotedPawn != nullptr and (selectedpiece->column == 0 or selectedpiece->column == 7))
+                                {
+                                    pendingPromotion = selectedpiece;
+                                    white_pendingPromotion = selectedpiece->is_White;
+
+                                    selectedpiece->sprite.setPosition(b.get_Position(static_cast<int>(idx.x), static_cast<int>(idx.y)));
+                                    selectedpiece->is_Selected = false;
+                                    selectedpiece->sprite.setColor(Color::White);
+                                    selectedpiece = nullptr;
+                                    highlightmoves.clear();
+                                    moved = true;
+                                    break;
                                 }
                                 selectedpiece->is_First_Move = false;
                                 selectedpiece->sprite.setPosition(b.get_Position(static_cast<int>(idx.x),static_cast<int>(idx.y)));
@@ -668,6 +684,10 @@ for(int j = 0; j <= 1 ; j ++)
         {
             choices[i]->setPosition(promotionUIpos[i]);
             choices[i]->setScale({0.1406f, 0.1406f});
+            Sprite shadow = *choices[i];
+            shadow.setColor(Color(0,0,0,100));
+            shadow.move({6.f,6.f});
+            window.draw(shadow);
             window.draw(*choices[i]);
         }
 

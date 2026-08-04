@@ -5,8 +5,8 @@
 
 class pawn : public piece
 {
-    private:
-        bool can_Promote;
+    public:
+        bool can_Promote = false;
         bool is_En_Passant = false;
 
     public:
