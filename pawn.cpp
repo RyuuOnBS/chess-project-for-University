@@ -71,7 +71,7 @@
 
             // Promotion
             sf::Vector2f pos = {row, column};
-            if(pos.x == 7.f or pos.y == 0.f)
+            if(pos.y == 7.f or pos.y == 0.f)
                 can_Promote = true;
 
             return possible_moves;

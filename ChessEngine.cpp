@@ -13,6 +13,12 @@ using namespace std;
 // Includes all functions of sfml library
 using namespace sf; 
 
+const sf::Vector2f promotionUIpos[4] = {
+    {870.f, 350.f},
+    {942.f, 350.f},
+    {1014.f, 350.f},
+    {1086.f, 350.f}
+};
 int main()
 {
 // render window for the chess board
@@ -58,6 +64,7 @@ int main()
         whitepawn[i].sprite.setScale({0.1855f, 0.1855f});
     }
     vector<rook> whiterook;
+    whiterook.reserve(10);
     for(int i = 0; i < 2; i++)
     {
         whiterook.emplace_back(whiterooktexture, true);
@@ -70,6 +77,7 @@ int main()
         whiterook[i].sprite.setScale({0.1855f, 0.1855f});
     }
     vector<knight> whiteknight;
+    whiteknight.reserve(10);
     for(int i = 0; i < 2; i++)
     {
         whiteknight.emplace_back(whiteknighttexture, true);
@@ -89,6 +97,7 @@ int main()
         whiteknight[i].sprite.setScale({0.1855f, 0.1855f});
     }
     vector<bishop> whitebishop;
+    whitebishop.reserve(10);
     for(int i = 0; i < 2; i++)
     {
         whitebishop.emplace_back(whitebishoptexture, true);
@@ -111,6 +120,7 @@ int main()
         whitebishop[i].sprite.setScale({0.1855f, 0.1855f});
     }
     vector<queen> whitequeen;
+    whitequeen.reserve(9);
     for(int i = 0; i < 1; i++)
     {
         whitequeen.emplace_back(whitequeentexture, true);
@@ -144,6 +154,7 @@ int main()
         blackpawn[i].sprite.setScale({0.1855f, 0.1855f});
     }
     vector<rook> blackrook;
+    blackrook.reserve(10);
     for(int i = 0; i < 2; i++)
     {
         blackrook.emplace_back(blackrooktexture, false);
@@ -156,6 +167,7 @@ int main()
         blackrook[i].sprite.setScale({0.1855f, 0.1855f});
     }
     vector<knight> blackknight;
+    blackknight.reserve(10);
     for(int i = 0; i < 2; i++)
     {
         blackknight.emplace_back(blackknighttexture, false);
@@ -176,6 +188,7 @@ int main()
         blackknight[i].sprite.setScale({0.1855f, 0.1855f});
     }
     vector<bishop> blackbishop;
+    blackbishop.reserve(10);
     for(int i = 0; i < 2; i++)
     {
         blackbishop.emplace_back(blackbishoptexture, false);
@@ -196,6 +209,7 @@ int main()
         blackbishop[i].sprite.setScale({0.1855f, 0.1855f});
     }
     vector<queen> blackqueen;
+    blackqueen.reserve(9);
     for(int i = 0; i < 1; i++)
     {
         blackqueen.emplace_back(blackqueentexture, false);
@@ -299,6 +313,8 @@ int main()
     vector <Vector2f> highlightmoves;
     bool SELECTED;
     int turn = 0;
+    piece* pendingPromotion = nullptr;
+    bool white_pendingPromotion = false;
 // Event handling...
     while(window.isOpen())
     {
@@ -308,10 +324,12 @@ int main()
             {
                 window.close();
             }
+
             // piece movment and capture
             if(event->is<Event::MouseButtonPressed>())
             {
                 auto * mb = event->getIf<Event::MouseButtonPressed>();
+                
                 if(mb->button == Mouse::Button::Left)
                 {
                     Vector2i mousepixel = Mouse::getPosition(window);
@@ -319,6 +337,64 @@ int main()
                     vector <piece*>& active = (turn % 2 == 0)? b.whitepiece : b.blackpiece;
                     vector <piece*>& not_active = (turn % 2 == 0)? b.blackpiece : b.whitepiece;
                     bool moved = false;
+
+                    if(pendingPromotion != nullptr)
+                    {
+                        for(int i = 0; i < 4; i++)
+                        {
+                            sf::FloatRect choiceBounds(promotionUIpos[i], {72.f, 72.f});
+                            if(choiceBounds.contains(mousepos))
+                            {
+                                piece* newPiece = nullptr;
+                                if(i == 0)
+                                {
+                                    newPiece = new queen(white_pendingPromotion ? whitequeentexture : blackqueentexture, pendingPromotion->is_White);
+                                }
+                                else if(i == 1)
+                                {
+                                    newPiece = new rook(white_pendingPromotion ? whiterooktexture : blackrooktexture, pendingPromotion->is_White);
+                                }
+                                else if(i == 2)
+                                {
+                                    newPiece = new bishop(white_pendingPromotion ? whitebishoptexture : blackbishoptexture, pendingPromotion->is_White);
+                                }
+                                else
+                                {
+                                    newPiece = new knight(white_pendingPromotion ? whiteknighttexture : blackknighttexture, pendingPromotion->is_White);
+                                }
+
+                                if(newPiece != nullptr)
+                                {
+                                    newPiece->row = pendingPromotion->row;
+                                    newPiece->column = pendingPromotion->column;
+                                    newPiece->sprite.setPosition(b.get_Position(static_cast<int>(newPiece->row), static_cast<int>(newPiece->column)));
+                                    if(pendingPromotion->is_White)
+                                    {
+                                        b.whitepiece.push_back(newPiece);
+                                        auto it = std::find(b.whitepiece.begin(), b.whitepiece.end(), pendingPromotion);
+                                        if(it != b.whitepiece.end())
+                                        {
+                                            b.whitepiece.erase(it);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        b.blackpiece.push_back(newPiece);
+                                        auto it = std::find(b.blackpiece.begin(), b.blackpiece.end(), pendingPromotion);
+                                        if(it != b.blackpiece.end())
+                                        {
+                                            b.blackpiece.erase(it);
+                                        }
+                                    }
+                                    b.capturePiece(pendingPromotion);
+                                    pendingPromotion->is_Alive = false;
+                                    pendingPromotion = nullptr;
+                                    turn++;
+                                    break;
+                                }
+                            }
+                        }
+                    }
 
                     if(selectedpiece != nullptr)
                     {
@@ -329,6 +405,8 @@ int main()
                             {
                                 Vector2f idx = b.get_Index(k.x,k.y);
                                 piece* target = b.getPieceLoc(idx.x,idx.y);
+                                selectedpiece->row = idx.x;
+                                selectedpiece->column = idx.y;
                                 if(target != nullptr and target->is_White != selectedpiece->is_White)
                                 {
                                 b.capturePiece(target);
@@ -341,14 +419,7 @@ int main()
                                         b.capturePiece(p);
                                     }
                                 }
-                                if(selectedpiece->is_pawn and ((selectedpiece->is_White and idx.y == 0) or (!selectedpiece->is_White and idx.y == 7)))
-                                {
-                                    selectedpiece->sprite.setTexture(whitequeentexture);
-                                    selectedpiece->is_pawn = false;
-                                }
-                                {
 
-                                }
                                 if(selectedpiece->is_king and selectedpiece->is_First_Move and selectedpiece->is_castling)
                                 {
                                     if(idx.x == 2)
@@ -373,8 +444,6 @@ int main()
                                         }
                                     }
                                 }
-                                selectedpiece->row = idx.x;
-                                selectedpiece->column = idx.y;
                                 selectedpiece->is_First_Move = false;
                                 selectedpiece->sprite.setPosition(b.get_Position(static_cast<int>(idx.x),static_cast<int>(idx.y)));
                                 selectedpiece->is_Selected = false;
@@ -586,6 +655,22 @@ for(int j = 0; j <= 1 ; j ++)
         blackturn.setFillColor(Color(255,255,255));
         blackturn.setPosition({905, 100});
         window.draw(blackturn);
+    }
+    if(pendingPromotion != nullptr)
+    {
+        Sprite qChoice(white_pendingPromotion ? whitequeentexture : blackqueentexture);
+        Sprite rChoice(white_pendingPromotion ? whiterooktexture : blackrooktexture);
+        Sprite bChoice(white_pendingPromotion ? whitebishoptexture : blackbishoptexture);
+        Sprite kChoice(white_pendingPromotion ? whiteknighttexture : blackknighttexture);
+
+        Sprite* choices[4] = {&qChoice, &rChoice, &bChoice, &kChoice};
+        for(int i = 0; i < 4; i++)
+        {
+            choices[i]->setPosition(promotionUIpos[i]);
+            choices[i]->setScale({0.1406f, 0.1406f});
+            window.draw(*choices[i]);
+        }
+
     }
 }
 // function in sfml to display the rendered graphics
